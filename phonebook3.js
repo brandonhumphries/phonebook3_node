@@ -35,6 +35,79 @@ var mainMenu = function() {
         });
     };
 
+    var lookUpEntry = function () {
+        console.log(menuItems[2] + '\n' + menuItems[3] + '\n' + menuItems[2])
+        rl.question('Name: ', function(name) {
+            importPhonebook();
+            var entryCounter = 0;
+            phonebookEntries.forEach(function(entry) {
+                if (entry.firstname === name) {
+                    console.log('Found entry for ' + name + ': ' + entry.phone);
+                    entryCounter++;
+                }
+            });
+            if (entryCounter === 0) {
+                console.log('Entry not found for ' + name);
+            }
+            displayMenu();
+            phonebookOptionProcessing();
+        });
+    };
+
+    var setAnEntry = function () {
+        console.log(menuItems[2] + '\n' + menuItems[4] + '\n' + menuItems[2])
+        rl.question('Name: ', function(name) {
+            rl.question('Phone Number: ', function(phoneNumber) {
+                var phonebookEntry = {};
+                phonebookEntry.firstname = name;
+                phonebookEntry.phone = phoneNumber;
+                phonebookEntries.push(phonebookEntry);
+                console.log('Entry stored for ' + name);
+                writePhonebookToFile(stringifyPhonebook(phonebookEntries));
+                console.log('Phonebook saved!');
+                displayMenu();
+                phonebookOptionProcessing();
+            });
+        });
+    };
+
+    var deleteAnEntry = function () {
+        console.log(menuItems[2] + '\n' + menuItems[5] + '\n' + menuItems[2])
+        rl.question('Name: ', function(name) {
+            var phonebookEntriesCopy = [];
+            phonebookEntries.forEach(function(entry) {
+                if (entry.firstname !== name) {
+                    phonebookEntriesCopy.push(entry);
+                }
+                else if (entry.firstname === name) {
+                    console.log('Deleted entry for ' + entry.firstname);
+                }
+            });
+            if (phonebookEntries.length === phonebookEntriesCopy.length) {
+                console.log('Entry not found, unable to delete.');
+            }
+            else {
+                phonebookEntries = phonebookEntriesCopy;
+                writePhonebookToFile(stringifyPhonebook(phonebookEntries));
+                console.log('Phonebook saved!');
+            }
+            displayMenu();
+            phonebookOptionProcessing();
+        });
+    };
+
+    var listAllEntries = function() {
+        console.log(menuItems[2] + '\n' + menuItems[6] + '\n' + menuItems[2])
+        fs.readFile('phonebook.txt', 'utf8', function(error, contents) {
+            var parsedPhonebook = JSON.parse(contents);
+            parsedPhonebook.forEach(function(entry) {
+                console.log('\n' + 'Name: ' + entry.firstname + '\n' + 'Phone Number: ' + entry.phone + '\n');
+            });
+            displayMenu();
+            phonebookOptionProcessing();
+        });
+    };
+
     var phonebookEntries = [];
 
     var importPhonebook = function () {
@@ -49,74 +122,16 @@ var mainMenu = function() {
     var phonebookOptionProcessing = function () {
         rl.question('What do you want to do (1-5)? ', function(option) {
             if (option === '1') {
-                console.log(menuItems[2] + '\n' + menuItems[3] + '\n' + menuItems[2])
-                rl.question('Name: ', function(name) {
-                    importPhonebook();
-                    var entryCounter = 0;
-                    phonebookEntries.forEach(function(entry) {
-                        if (entry.firstname === name) {
-                            console.log('Found entry for ' + name + ': ' + entry.phone);
-                            entryCounter++;
-                        }
-                    });
-                    if (entryCounter === 0) {
-                        console.log('Entry not found for ' + name);
-                    }
-                    displayMenu();
-                    phonebookOptionProcessing();
-                });
+                lookUpEntry();
             }
             else if (option === '2') {
-                console.log(menuItems[2] + '\n' + menuItems[4] + '\n' + menuItems[2])
-                rl.question('Name: ', function(name) {
-                    rl.question('Phone Number: ', function(phoneNumber) {
-                        var phonebookEntry = {};
-                        phonebookEntry.firstname = name;
-                        phonebookEntry.phone = phoneNumber;
-                        phonebookEntries.push(phonebookEntry);
-                        console.log('Entry stored for ' + name);
-                        writePhonebookToFile(stringifyPhonebook(phonebookEntries));
-                        console.log('Phonebook saved!');
-                        displayMenu();
-                        phonebookOptionProcessing();
-                    });
-                });
+                setAnEntry();
             }
             else if (option === '3') {
-                console.log(menuItems[2] + '\n' + menuItems[5] + '\n' + menuItems[2])
-                rl.question('Name: ', function(name) {
-                    var phonebookEntriesCopy = [];
-                    phonebookEntries.forEach(function(entry) {
-                        if (entry.firstname !== name) {
-                            phonebookEntriesCopy.push(entry);
-                        }
-                        else if (entry.firstname === name) {
-                            console.log('Deleted entry for ' + entry.firstname);
-                        }
-                    });
-                    if (phonebookEntries.length === phonebookEntriesCopy.length) {
-                        console.log('Entry not found, unable to delete.');
-                    }
-                    else {
-                        phonebookEntries = phonebookEntriesCopy;
-                        writePhonebookToFile(stringifyPhonebook(phonebookEntries));
-                        console.log('Phonebook saved!');
-                    }
-                    displayMenu();
-                    phonebookOptionProcessing();
-                });
+                deleteAnEntry();
             }
             else if (option === '4') {
-                console.log(menuItems[2] + '\n' + menuItems[6] + '\n' + menuItems[2])
-                fs.readFile('phonebook.txt', 'utf8', function(error, contents) {
-                    var parsedPhonebook = JSON.parse(contents);
-                    parsedPhonebook.forEach(function(entry) {
-                        console.log('\n' + 'Name: ' + entry.firstname + '\n' + 'Phone Number: ' + entry.phone + '\n');
-                    });
-                    displayMenu();
-                    phonebookOptionProcessing();
-                });
-                
+                listAllEntries();
             }
             else if (option === '5') {
                 console.log('Goodbye!');
@@ -130,33 +145,6 @@ var mainMenu = function() {
 };
 
 mainMenu();
-
-
-// var lookUpEntry = function () {
-//     rl.question('Name: ', function(name) {
-//         rl.close();
-//         importPhonebook();
-//         phonebookEntries.forEach(function(entry) {
-//             if (entry.firstname === name) {
-//                 console.log('Found entry for ' + name + ': ' + entry.phone);
-//             }
-//         });
-//     });
-// };
-
-// var setAnEntry = function () {
-//     rl.question('Name: ', function(name) {
-//         rl.question('Phone Number: ', function(phoneNumber) {
-//             var phonebookEntry = {
-//                 name: '',
-//                 phone: '',
-//             }
-//             phonebookEntry.name = name;
-//             phonebookEntry.phone = phoneNumber;
-//             writePhonebookToFile(stringifyPhonebook(phonebookEntries));
-//         })
-//     })
-// };
 
 // var stringifyPhonebook = function(phonebook) {
 //     var stringifiedPhonebook = JSON.stringify(phonebook);
