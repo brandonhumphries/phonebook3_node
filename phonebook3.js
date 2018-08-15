@@ -37,9 +37,14 @@ var mainMenu = function() {
 
     var importPhonebook = function () {
         fs.readFile('phonebook.txt', 'utf8', function(error, contents) {
-            var parsedPhonebook = JSON.parse(contents);
-            phonebookEntries = parsedPhonebook;
-            return phonebookEntries;
+            if (error) {
+                console.log(error);
+            }
+            else {
+                var parsedPhonebook = JSON.parse(contents);
+                phonebookEntries = parsedPhonebook;
+                return phonebookEntries;
+            }
         });
     };
 
