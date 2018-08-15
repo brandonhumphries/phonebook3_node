@@ -105,7 +105,8 @@ var mainMenu = function() {
                 
             }
             else if (option === '5') {
-
+                console.log('Goodbye!');
+                process.exit();
             }
         });
     };
