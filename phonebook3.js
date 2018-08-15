@@ -64,13 +64,13 @@ var mainMenu = function() {
                         phonebookEntries.push(phonebookEntry);
                         console.log('Entry stored for ' + name);
                         writePhonebookToFile(stringifyPhonebook(phonebookEntries));
+                        console.log('Phonebook saved!');
                         displayMenu();
                         phonebookOptionProcessing();
                     });
                 });
             }
             else if (option === '3') {
-                console.log('3');
                 rl.question('Name: ', function(name) {
                     var phonebookEntriesCopy = [];
                     phonebookEntries.forEach(function(entry) {
@@ -87,6 +87,7 @@ var mainMenu = function() {
                     else {
                         phonebookEntries = phonebookEntriesCopy;
                         writePhonebookToFile(stringifyPhonebook(phonebookEntries));
+                        console.log('Phonebook saved!');
                     }
                     displayMenu();
                     phonebookOptionProcessing();
@@ -105,7 +106,7 @@ var mainMenu = function() {
             }
             else if (option === '5') {
                 console.log('Goodbye!');
-                process.exit();
+                rl.close();
             }
         });
     };
