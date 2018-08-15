@@ -80,12 +80,14 @@ var mainMenu = function() {
                         else if (entry.firstname === name) {
                             console.log('Deleted entry for ' + entry.firstname);
                         }
-                        else {
-                            console.log('Entry not found');
-                        }
-                    })
-                    phonebookEntries = phonebookEntriesCopy;
-                    writePhonebookToFile(stringifyPhonebook(phonebookEntries));
+                    });
+                    if (phonebookEntries.length === phonebookEntriesCopy.length) {
+                        console.log('Entry not found, unable to delete.');
+                    }
+                    else {
+                        phonebookEntries = phonebookEntriesCopy;
+                        writePhonebookToFile(stringifyPhonebook(phonebookEntries));
+                    }
                 });
             }
             else if (option === '4') {
