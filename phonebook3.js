@@ -13,6 +13,9 @@ var stringifyPhonebook = function(phonebook) {
 
 var writePhonebookToFile = function(stringifiedPhonebook) {
     fs.writeFile('phonebook.txt', stringifiedPhonebook, function(error) {
+        if (error) {
+            console.log(error);
+        }
     });
 };
 
