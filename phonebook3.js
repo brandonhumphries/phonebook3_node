@@ -36,78 +36,82 @@ var mainMenu = function() {
         });
     };
 
-    displayMenu();
 
-    rl.question('What do you want to do (1-5)? ', function(option) {
-        if (option === '1') {
-            rl.question('Name: ', function(name) {
-                rl.close();
-                importPhonebook();
-                var entryCounter = 0;
-                phonebookEntries.forEach(function(entry) {
-                    if (entry.firstname === name) {
-                        console.log('Found entry for ' + name + ': ' + entry.phone);
-                        entryCounter++;
+    var phonebookOptionProcessing = function () {
+        rl.question('What do you want to do (1-5)? ', function(option) {
+            if (option === '1') {
+                rl.question('Name: ', function(name) {
+                    rl.close();
+                    importPhonebook();
+                    var entryCounter = 0;
+                    phonebookEntries.forEach(function(entry) {
+                        if (entry.firstname === name) {
+                            console.log('Found entry for ' + name + ': ' + entry.phone);
+                            entryCounter++;
+                        }
+                    });
+                    if (entryCounter === 0) {
+                        console.log('Entry not found for ' + name);
                     }
                 });
-                if (entryCounter === 0) {
-                    console.log('Entry not found for ' + name);
-                }
-            });
-        }
-        else if (option === '2') {
-            rl.question('Name: ', function(name) {
-                rl.question('Phone Number: ', function(phoneNumber) {
+            }
+            else if (option === '2') {
+                rl.question('Name: ', function(name) {
+                    rl.question('Phone Number: ', function(phoneNumber) {
+                        rl.close();
+                        var phonebookEntry = {};
+                        phonebookEntry.firstname = name;
+                        phonebookEntry.phone = phoneNumber;
+                        // console.log(phonebookEntry);
+                        // console.log(phonebookEntries);
+                        // phonebookEntries[name] = phonebookEntry;
+                        phonebookEntries.push(phonebookEntry);
+                        console.log('Entry stored for ' + name);
+                        // console.log(phonebookEntries);
+                        // console.log(phonebookEntry);
+                        writePhonebookToFile(stringifyPhonebook(phonebookEntries));
+                    });
+                });
+            }
+            else if (option === '3') {
+                console.log('3');
+                rl.question('Name: ', function(name) {
                     rl.close();
-                    var phonebookEntry = {};
-                    phonebookEntry.firstname = name;
-                    phonebookEntry.phone = phoneNumber;
-                    // console.log(phonebookEntry);
-                    // console.log(phonebookEntries);
-                    // phonebookEntries[name] = phonebookEntry;
-                    phonebookEntries.push(phonebookEntry);
-                    console.log('Entry stored for ' + name);
-                    // console.log(phonebookEntries);
-                    // console.log(phonebookEntry);
+                    var phonebookEntriesCopy = [];
+                    phonebookEntries.forEach(function(entry) {
+                        if (entry.firstname !== name) {
+                            phonebookEntriesCopy.push(entry);
+                        }
+                        else if (entry.firstname === name) {
+                            console.log('Deleted entry for ' + entry.firstname);
+                        }
+                        else {
+                            console.log('Entry not found');
+                        }
+                    })
+                    phonebookEntries = phonebookEntriesCopy;
                     writePhonebookToFile(stringifyPhonebook(phonebookEntries));
                 });
-            });
-        }
-        else if (option === '3') {
-            console.log('3');
-            rl.question('Name: ', function(name) {
-                rl.close();
-                var phonebookEntriesCopy = [];
-                phonebookEntries.forEach(function(entry) {
-                    if (entry.firstname !== name) {
-                        phonebookEntriesCopy.push(entry);
-                    }
-                    else if (entry.firstname === name) {
-                        console.log('Deleted entry for ' + entry.firstname);
-                    }
-                    else {
-                        console.log('Entry not found');
-                    }
-                })
-                phonebookEntries = phonebookEntriesCopy;
-                writePhonebookToFile(stringifyPhonebook(phonebookEntries));
-            });
-        }
-        else if (option === '4') {
-            fs.readFile('phonebook.txt', 'utf8', function(error, contents) {
-                rl.close();
-                var parsedPhonebook = JSON.parse(contents);
-                // console.log(parsedPhonebook);
-                parsedPhonebook.forEach(function(entry) {
-                    console.log('\n' + 'Name: ' + entry.firstname + '\n' + 'Phone Number: ' + entry.phone + '\n');
+            }
+            else if (option === '4') {
+                fs.readFile('phonebook.txt', 'utf8', function(error, contents) {
+                    rl.close();
+                    var parsedPhonebook = JSON.parse(contents);
+                    // console.log(parsedPhonebook);
+                    parsedPhonebook.forEach(function(entry) {
+                        console.log('\n' + 'Name: ' + entry.firstname + '\n' + 'Phone Number: ' + entry.phone + '\n');
+                    });
                 });
-            });
-            
-        }
-        else if (option === '5') {
+                
+            }
+            else if (option === '5') {
 
-        }
-    });
+            }
+        });
+    };
+
+    displayMenu();
+    phonebookOptionProcessing();
 };
 
 mainMenu();
