@@ -107,12 +107,17 @@ var mainMenu = function() {
     var listAllEntries = function() {
         console.log(menuItems[2] + '\n' + menuItems[6] + '\n' + menuItems[2]);
         fs.readFile('phonebook.txt', 'utf8', function(error, contents) {
-            var parsedPhonebook = JSON.parse(contents);
-            parsedPhonebook.forEach(function(entry) {
-                console.log('\n' + 'Name: ' + entry.firstname + '\n' + 'Phone Number: ' + entry.phone + '\n');
-            });
-            displayMenu();
-            phonebookOptionProcessing();
+            if (error) {
+                console.log(error);
+            }
+            else {
+                var parsedPhonebook = JSON.parse(contents);
+                parsedPhonebook.forEach(function(entry) {
+                    console.log('\n' + 'Name: ' + entry.firstname + '\n' + 'Phone Number: ' + entry.phone + '\n');
+                });
+                displayMenu();
+                phonebookOptionProcessing();
+            }
         });
     };
 
