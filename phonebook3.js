@@ -62,13 +62,8 @@ var mainMenu = function() {
                         var phonebookEntry = {};
                         phonebookEntry.firstname = name;
                         phonebookEntry.phone = phoneNumber;
-                        // console.log(phonebookEntry);
-                        // console.log(phonebookEntries);
-                        // phonebookEntries[name] = phonebookEntry;
                         phonebookEntries.push(phonebookEntry);
                         console.log('Entry stored for ' + name);
-                        // console.log(phonebookEntries);
-                        // console.log(phonebookEntry);
                         writePhonebookToFile(stringifyPhonebook(phonebookEntries));
                     });
                 });
@@ -97,7 +92,6 @@ var mainMenu = function() {
                 fs.readFile('phonebook.txt', 'utf8', function(error, contents) {
                     rl.close();
                     var parsedPhonebook = JSON.parse(contents);
-                    // console.log(parsedPhonebook);
                     parsedPhonebook.forEach(function(entry) {
                         console.log('\n' + 'Name: ' + entry.firstname + '\n' + 'Phone Number: ' + entry.phone + '\n');
                     });
