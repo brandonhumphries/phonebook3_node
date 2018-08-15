@@ -1,25 +1,35 @@
 var fs = require('fs');
 var readline = require('readline');
 
-
 var rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
 })
 
+var stringifyPhonebook = function(phonebook) {
+    var stringifiedPhonebook = JSON.stringify(phonebook);
+    return stringifiedPhonebook;
+};
+
+var writePhonebookToFile = function(stringifiedPhonebook) {
+    fs.writeFile('phonebook.txt', stringifiedPhonebook, function(error) {
+    });
+};
+
 var mainMenu = function() {
 
+    var menuItems = [
+        '\n',
+        'Electronic Phone Book',
+        '=====================',
+        '1. Look up an entry',
+        '2. Set an entry',
+        '3. Delete an entry',
+        '4. List all entries',
+        '5. Quit'
+    ];
+
     var displayMenu = function () {
-        var menuItems = [
-            '\n',
-            'Electronic Phone Book',
-            '=====================',
-            '1. Look up an entry',
-            '2. Set an entry',
-            '3. Delete an entry',
-            '4. List all entries',
-            '5. Quit'
-        ];
         menuItems.forEach(function (item) {
             console.log(item);
         });
@@ -39,6 +49,7 @@ var mainMenu = function() {
     var phonebookOptionProcessing = function () {
         rl.question('What do you want to do (1-5)? ', function(option) {
             if (option === '1') {
+                console.log(menuItems[2] + '\n' + menuItems[3] + '\n' + menuItems[2])
                 rl.question('Name: ', function(name) {
                     importPhonebook();
                     var entryCounter = 0;
@@ -56,6 +67,7 @@ var mainMenu = function() {
                 });
             }
             else if (option === '2') {
+                console.log(menuItems[2] + '\n' + menuItems[4] + '\n' + menuItems[2])
                 rl.question('Name: ', function(name) {
                     rl.question('Phone Number: ', function(phoneNumber) {
                         var phonebookEntry = {};
@@ -71,6 +83,7 @@ var mainMenu = function() {
                 });
             }
             else if (option === '3') {
+                console.log(menuItems[2] + '\n' + menuItems[5] + '\n' + menuItems[2])
                 rl.question('Name: ', function(name) {
                     var phonebookEntriesCopy = [];
                     phonebookEntries.forEach(function(entry) {
@@ -94,6 +107,7 @@ var mainMenu = function() {
                 });
             }
             else if (option === '4') {
+                console.log(menuItems[2] + '\n' + menuItems[6] + '\n' + menuItems[2])
                 fs.readFile('phonebook.txt', 'utf8', function(error, contents) {
                     var parsedPhonebook = JSON.parse(contents);
                     parsedPhonebook.forEach(function(entry) {
@@ -118,56 +132,56 @@ var mainMenu = function() {
 mainMenu();
 
 
-var lookUpEntry = function () {
-    rl.question('Name: ', function(name) {
-        rl.close();
-        importPhonebook();
-        phonebookEntries.forEach(function(entry) {
-            if (entry.firstname === name) {
-                console.log('Found entry for ' + name + ': ' + entry.phone);
-            }
-        });
-    });
-};
+// var lookUpEntry = function () {
+//     rl.question('Name: ', function(name) {
+//         rl.close();
+//         importPhonebook();
+//         phonebookEntries.forEach(function(entry) {
+//             if (entry.firstname === name) {
+//                 console.log('Found entry for ' + name + ': ' + entry.phone);
+//             }
+//         });
+//     });
+// };
 
-var setAnEntry = function () {
-    rl.question('Name: ', function(name) {
-        rl.question('Phone Number: ', function(phoneNumber) {
-            var phonebookEntry = {
-                name: '',
-                phone: '',
-            }
-            phonebookEntry.name = name;
-            phonebookEntry.phone = phoneNumber;
-            writePhonebookToFile(stringifyPhonebook(phonebookEntries));
-        })
-    })
-};
+// var setAnEntry = function () {
+//     rl.question('Name: ', function(name) {
+//         rl.question('Phone Number: ', function(phoneNumber) {
+//             var phonebookEntry = {
+//                 name: '',
+//                 phone: '',
+//             }
+//             phonebookEntry.name = name;
+//             phonebookEntry.phone = phoneNumber;
+//             writePhonebookToFile(stringifyPhonebook(phonebookEntries));
+//         })
+//     })
+// };
 
-var stringifyPhonebook = function(phonebook) {
-    var stringifiedPhonebook = JSON.stringify(phonebook);
-    return stringifiedPhonebook;
-};
+// var stringifyPhonebook = function(phonebook) {
+//     var stringifiedPhonebook = JSON.stringify(phonebook);
+//     return stringifiedPhonebook;
+// };
 
-var parsePhonebook = function(phonebook) {
-    var parsedPhonebook = JSON.parse(phonebook);
-    console.log(parsedPhonebook);
-    return parsedPhonebook;
-};
+// var parsePhonebook = function(phonebook) {
+//     var parsedPhonebook = JSON.parse(phonebook);
+//     console.log(parsedPhonebook);
+//     return parsedPhonebook;
+// };
 
-var writePhonebookToFile = function(stringifiedPhonebook) {
-    fs.writeFile('phonebook.txt', stringifiedPhonebook, function(error) {
-        // console.log('Phonebook saved to file!');
-    });
-};
+// var writePhonebookToFile = function(stringifiedPhonebook) {
+//     fs.writeFile('phonebook.txt', stringifiedPhonebook, function(error) {
+//         // console.log('Phonebook saved to file!');
+//     });
+// };
 
-var readPhonebookFromFile = function(phonebookFile) {
-    fs.readFile(phonebookFile, 'utf8', function(error, contents) {
-        var parsedPhonebook = parsePhonebook(contents);
-        console.log(parsedPhonebook);
-        return parsedPhonebook;
-    });
-};
+// var readPhonebookFromFile = function(phonebookFile) {
+//     fs.readFile(phonebookFile, 'utf8', function(error, contents) {
+//         var parsedPhonebook = parsePhonebook(contents);
+//         console.log(parsedPhonebook);
+//         return parsedPhonebook;
+//     });
+// };
 
 // readPhonebookFromFile('phonebook.txt');
 
