@@ -1,72 +1,57 @@
-var http = require('http');
-var fs = require('fs');
+const http = require('http');
+const fs = require('fs');
 
-var contactPrefix = '/contacts/';
+const contactPrefix = '/contacts/';
 
-var readBody = function(req, callback) {
-    var body = '';
-    req.on('data', function(chunk) {
+let readBody = (req, callback) => {
+    let body = '';
+    req.on('data', (chunk) => {
         body += chunk.toString();
     });
-    req.on('end', function() {
+    req.on('end', () => {
         callback(body);
     });
 };
 
-var generateID = function() {
+let generateID = () => {
     return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
 };
 
-var server = http.createServer(function(req, res) {
-    var phonebookEntries = [];
+let server = http.createServer( (req, res) => {
     if (req.url === '/contacts' && req.method === 'GET') {
-        fs.readFile('phonebook.json', 'utf8', function(error, contents) {
+        fs.readFile('phonebook.json', 'utf8', (error, contents) => {
+            let stringifiedEntries = JSON.stringify(contents);
             if (error) {
                 console.log(error);
             }
             else {
-                // var parsedPhonebook = JSON.parse(contents);
-                // var entryList = [];
-                // parsedPhonebook.forEach(function(entry) {
-                //     entryList += ('\n' + 'Name: ' + entry.firstname + '\n' + 'Phone Number: ' + entry.phone + '\n')
-                // });
-                var stringifiedEntries = JSON.stringify(contents);
                 res.end(stringifiedEntries);
             }
         });
     }
     else if (req.url.startsWith('/contacts/') && req.method === 'GET') {
-        var id = req.url.slice(contactPrefix.length);
-        fs.readFile('phonebook.json', 'utf8', function(error, contents) {
+        let id = req.url.slice(contactPrefix.length);
+        fs.readFile('phonebook.json', 'utf8', (error, contents) => {
+            let parsedPhonebook = JSON.parse(contents);
+            let stringifiedEntry = JSON.stringify(parsedPhonebook[id]);
             if (error) {
                 console.log(error);
             }
             else {
-                var parsedPhonebook = JSON.parse(contents);
-                var stringifiedEntry = JSON.stringify(parsedPhonebook[id]);
                 res.end(stringifiedEntry);
-                // parsedPhonebook.forEach(function(entry) {
-                //     if (entry.firstName === name) {
-                //         var stringifiedEntry = JSON.stringify(entry)
-                //         res.end(stringifiedEntry);
-                //     }
-                    // else {
-                    //     res.end('404 File Not Found');
-                    // }
-                // });
             }
         });
     }
     else if (req.url === '/contacts' && req.method === 'POST') {
-        readBody(req, function(body) {
-            var contact = JSON.parse(body);
-            fs.readFile('phonebook.json', 'utf8', function(error, contents) {
-                var parsedPhonebook = JSON.parse(contents);
+        readBody(req, (body) => {
+            let contact = JSON.parse(body);
+            fs.readFile('phonebook.json', 'utf8', (error, contents) => {
+                let parsedPhonebook = JSON.parse(contents);
                 newID = generateID();
                 contact.id = newID;
                 parsedPhonebook[newID]= contact;
-                var stringifiedPhonebook = JSON.stringify(parsedPhonebook);
-                fs.writeFile('phonebook.json', stringifiedPhonebook, function(error) {
+                let stringifiedPhonebook = JSON.stringify(parsedPhonebook);
+                fs.writeFile('phonebook.json', stringifiedPhonebook, (error) => {
                     if (error) {
                         console.log(error);
                     }
@@ -76,17 +61,40 @@ var server = http.createServer(function(req, res) {
             })
         })
     }
-    else if (req.url.startsWith('/contacts/') && req.method === 'DELETE') {
-        var id = req.url.slice(contactPrefix.length);
-        fs.readFile('phonebook.json', 'utf8', function(error, contents) {
+    else if (req.url.startsWith('/contacts/') && req.method === 'PUT') {
+        let id = req.url.slice(contactPrefix.length);
+        fs.readFile('phonebook.json', 'utf8', (error, contents) => {
+            let parsedPhonebook = JSON.parse(contents);
             if (error) {
                 console.log(error);
             }
             else {
-                var parsedPhonebook = JSON.parse(contents);
+                readBody(req, (body) => {
+                    let contact = JSON.parse(body);
+                    parsedPhonebook[id] = contact;
+                    let stringifiedPhonebook = JSON.stringify(parsedPhonebook);
+                    fs.writeFile('phonebook.json', stringifiedPhonebook, (error) => {
+                        if (error) {
+                            console.log(error);
+                        }
+                    })
+                    console.log(parsedPhonebook[id]);
+                    res.end('Updated contact for ' + parsedPhonebook[id].firstname);
+                })
+            }
+        });
+    }
+    else if (req.url.startsWith('/contacts/') && req.method === 'DELETE') {
+        let id = req.url.slice(contactPrefix.length);
+        fs.readFile('phonebook.json', 'utf8', (error, contents) => {
+            if (error) {
+                console.log(error);
+            }
+            else {
+                let parsedPhonebook = JSON.parse(contents);
                 delete parsedPhonebook[id];
-                var stringifiedPhonebook = JSON.stringify(parsedPhonebook);
-                fs.writeFile('phonebook.json', stringifiedPhonebook, function(error) {
+                let stringifiedPhonebook = JSON.stringify(parsedPhonebook);
+                fs.writeFile('phonebook.json', stringifiedPhonebook, (error) => {
                     if (error) {
                         console.log(error);
                     }
@@ -104,13 +112,3 @@ var server = http.createServer(function(req, res) {
 });
 
 server.listen(3000);
-
-var currentID = 0;
-var generateID = function() {
-    currentID++;
-    return currentID;
-}
-
-var generateID = function() {
-    return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
-};
