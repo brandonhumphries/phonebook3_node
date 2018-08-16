@@ -12,7 +12,7 @@ var stringifyPhonebook = function(phonebook) {
 };
 
 var writePhonebookToFile = function(stringifiedPhonebook) {
-    fs.writeFile('phonebook.txt', stringifiedPhonebook, function(error) {
+    fs.writeFile('phonebook.json', stringifiedPhonebook, function(error) {
         if (error) {
             console.log(error);
         }
@@ -39,7 +39,7 @@ var mainMenu = function() {
     };
 
     var importPhonebook = function () {
-        fs.readFile('phonebook.txt', 'utf8', function(error, contents) {
+        fs.readFile('phonebook.json', 'utf8', function(error, contents) {
             if (error) {
                 console.log(error);
             }
@@ -68,13 +68,19 @@ var mainMenu = function() {
         });
     };
 
+    var generateID = function() {
+        return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
+    };
+
     var setAnEntry = function (displayMenu) {
         console.log(menuItems[2] + '\n' + menuItems[4] + '\n' + menuItems[2]);
         rl.question('Name: ', function(name) {
             rl.question('Phone Number: ', function(phoneNumber) {
                 var phonebookEntry = {};
+                var id = generateID();
                 phonebookEntry.firstname = name;
                 phonebookEntry.phone = phoneNumber;
+                phonebookEntry.id = id
                 phonebookEntries.push(phonebookEntry);
                 console.log('Entry stored for ' + name);
                 writePhonebookToFile(stringifyPhonebook(phonebookEntries));
@@ -110,7 +116,7 @@ var mainMenu = function() {
 
     var listAllEntries = function(displayMenu) {
         console.log(menuItems[2] + '\n' + menuItems[6] + '\n' + menuItems[2]);
-        fs.readFile('phonebook.txt', 'utf8', function(error, contents) {
+        fs.readFile('phonebook.json', 'utf8', function(error, contents) {
             if (error) {
                 console.log(error);
             }
@@ -134,7 +140,7 @@ var mainMenu = function() {
         phonebookOptionProcessing();
     };
 
-    var phonebookEntries = [];
+    var phonebookEntries = {};
 
     importPhonebook();
     
