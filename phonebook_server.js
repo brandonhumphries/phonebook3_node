@@ -43,9 +43,9 @@ let server = http.createServer( (req, res) => {
         });
     }
     else if (req.url === '/contacts' && req.method === 'POST') {
-        readBody(req, (body) => {
-            let contact = JSON.parse(body);
-            fs.readFile('phonebook.json', 'utf8', (error, contents) => {
+        fs.readFile('phonebook.json', 'utf8', (error, contents) => {
+            readBody(req, (body) => {
+                let contact = JSON.parse(body);
                 let parsedPhonebook = JSON.parse(contents);
                 newID = generateID();
                 contact.id = newID;
@@ -55,11 +55,11 @@ let server = http.createServer( (req, res) => {
                     if (error) {
                         console.log(error);
                     }
-                })
+                });
                 console.log(parsedPhonebook[newID]);
                 res.end('Created contact! Entry id: ' + newID);
-            })
-        })
+            });
+        });
     }
     else if (req.url.startsWith('/contacts/') && req.method === 'PUT') {
         let id = req.url.slice(contactPrefix.length);
@@ -71,7 +71,8 @@ let server = http.createServer( (req, res) => {
             else {
                 readBody(req, (body) => {
                     let contact = JSON.parse(body);
-                    parsedPhonebook[id] = contact;
+                    parsedPhonebook[id].firstname = contact.firstname;
+                    parsedPhonebook[id].phone = contact.phone;
                     let stringifiedPhonebook = JSON.stringify(parsedPhonebook);
                     fs.writeFile('phonebook.json', stringifiedPhonebook, (error) => {
                         if (error) {
@@ -103,9 +104,6 @@ let server = http.createServer( (req, res) => {
             }
         });
     }
-    // else if (req.url === '/contacts' && req.method === 'POST') {
-
-    // }
     else {
         res.end('404 File Not Found');
     }
