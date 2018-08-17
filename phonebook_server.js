@@ -33,12 +33,17 @@ let getEntries = (res) => {
 let getContact = (res, id) => {
     fs.readFile('phonebook.json', 'utf8', (error, contents) => {
         let parsedPhonebook = JSON.parse(contents);
-        let stringifiedEntry = JSON.stringify(parsedPhonebook[id]);
-        if (error) {
-            console.log(error);
+        if (parsedPhonebook[id] === undefined) {
+            res.end('404 Not Found');
         }
-        else {
-            res.end(stringifiedEntry);
+        else{
+            let stringifiedEntry = JSON.stringify(parsedPhonebook[id]);
+            if (error) {
+                console.log(error);
+            }
+            else {
+                res.end(stringifiedEntry);
+            }
         }
     });
 };
@@ -75,21 +80,26 @@ let putContact = (req, res, id) => {
         }
         else {
             let parsedPhonebook = JSON.parse(contents);
-            readBody(req, (body) => {
-                let contact = JSON.parse(body);
-                parsedPhonebook[id].firstname = contact.firstname;
-                parsedPhonebook[id].phone = contact.phone;
-                let stringifiedPhonebook = JSON.stringify(parsedPhonebook);
-                fs.writeFile('phonebook.json', stringifiedPhonebook, (error) => {
-                    if (error) {
-                        console.log(error);
-                    }
-                    else {
-                        console.log(parsedPhonebook[id]);
-                        res.end('Updated contact entry for ' + parsedPhonebook[id].firstname);
-                    }
+            if (parsedPhonebook[id] === undefined) {
+                res.end('404 Not Found');
+            }
+            else {
+                readBody(req, (body) => {
+                    let contact = JSON.parse(body);
+                    parsedPhonebook[id].firstname = contact.firstname;
+                    parsedPhonebook[id].phone = contact.phone;
+                    let stringifiedPhonebook = JSON.stringify(parsedPhonebook);
+                    fs.writeFile('phonebook.json', stringifiedPhonebook, (error) => {
+                        if (error) {
+                            console.log(error);
+                        }
+                        else {
+                            console.log(parsedPhonebook[id]);
+                            res.end('Updated contact entry for ' + parsedPhonebook[id].firstname);
+                        }
+                    });
                 });
-            });
+            }
         }
     });
 };
@@ -100,17 +110,22 @@ let deleteContact = (req, res, id) => {
             console.log(error)
         }
         let parsedPhonebook = JSON.parse(contents);
-        let entryName = parsedPhonebook[id].firstname;
-        delete parsedPhonebook[id];
-        let stringifiedPhonebook = JSON.stringify(parsedPhonebook);
-        fs.writeFile('phonebook.json', stringifiedPhonebook, (error) => {
-            if (error) {
-                console.log(error);
-            }
-            else {
-                res.end('Contact entry deleted for ' + entryName);
-            }
-        });
+        if (parsedPhonebook[id] === undefined) {
+            res.end('404 Not Found');
+        }
+        else {
+            let entryName = parsedPhonebook[id].firstname;
+            delete parsedPhonebook[id];
+            let stringifiedPhonebook = JSON.stringify(parsedPhonebook);
+            fs.writeFile('phonebook.json', stringifiedPhonebook, (error) => {
+                if (error) {
+                    console.log(error);
+                }
+                else {
+                    res.end('Contact entry deleted for ' + entryName);
+                }
+            });
+        }
     });
 };
 
@@ -132,7 +147,7 @@ let server = http.createServer( (req, res) => {
         deleteContact(req, res, id);
     }
     else {
-        res.end('404 File Not Found');
+        res.end('404 Not Found');
     }
 });
 
