@@ -3,6 +3,7 @@ const fs = require('fs');
 
 const contactPrefix = '/contacts/';
 
+
 let readBody = (req, callback) => {
     let body = '';
     req.on('data', (chunk) => {
@@ -17,39 +18,43 @@ let generateID = () => {
     return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
 };
 
-let server = http.createServer( (req, res) => {
-    if (req.url === '/contacts' && req.method === 'GET') {
-        fs.readFile('phonebook.json', 'utf8', (error, contents) => {
-            let stringifiedEntries = JSON.stringify(contents);
-            if (error) {
-                console.log(error);
-            }
-            else {
-                res.end(stringifiedEntries);
-            }
-        });
-    }
-    else if (req.url.startsWith('/contacts/') && req.method === 'GET') {
-        let id = req.url.slice(contactPrefix.length);
-        fs.readFile('phonebook.json', 'utf8', (error, contents) => {
-            let parsedPhonebook = JSON.parse(contents);
-            let stringifiedEntry = JSON.stringify(parsedPhonebook[id]);
-            if (error) {
-                console.log(error);
-            }
-            else {
-                res.end(stringifiedEntry);
-            }
-        });
-    }
-    else if (req.url === '/contacts' && req.method === 'POST') {
-        fs.readFile('phonebook.json', 'utf8', (error, contents) => {
+let getEntries = (res) => {
+    fs.readFile('phonebook.json', 'utf8', (error, contents) => {
+        let stringifiedEntries = JSON.stringify(contents);
+        if (error) {
+            console.log(error);
+        }
+        else {
+            res.end(stringifiedEntries);
+        }
+    });
+};
+
+let getContact = (res, id) => {
+    fs.readFile('phonebook.json', 'utf8', (error, contents) => {
+        let parsedPhonebook = JSON.parse(contents);
+        let stringifiedEntry = JSON.stringify(parsedPhonebook[id]);
+        if (error) {
+            console.log(error);
+        }
+        else {
+            res.end(stringifiedEntry);
+        }
+    });
+};
+
+let postContact = (req, res) => {
+    fs.readFile('phonebook.json', 'utf8', (error, contents) => {
+        if (error) {
+            console.log(error);
+        }
+        else {
             readBody(req, (body) => {
                 let contact = JSON.parse(body);
                 let parsedPhonebook = JSON.parse(contents);
                 newID = generateID();
                 contact.id = newID;
-                parsedPhonebook[newID]= contact;
+                parsedPhonebook[newID] = contact;
                 let stringifiedPhonebook = JSON.stringify(parsedPhonebook);
                 fs.writeFile('phonebook.json', stringifiedPhonebook, (error) => {
                     if (error) {
@@ -59,50 +64,72 @@ let server = http.createServer( (req, res) => {
                 console.log(parsedPhonebook[newID]);
                 res.end('Created contact! Entry id: ' + newID);
             });
-        });
-    }
-    else if (req.url.startsWith('/contacts/') && req.method === 'PUT') {
-        let id = req.url.slice(contactPrefix.length);
-        fs.readFile('phonebook.json', 'utf8', (error, contents) => {
+        }
+    });
+};
+
+let putContact = (req, res, id) => {
+    fs.readFile('phonebook.json', 'utf8', (error, contents) => {
+        if (error) {
+            console.log(error);
+        }
+        else {
             let parsedPhonebook = JSON.parse(contents);
-            if (error) {
-                console.log(error);
-            }
-            else {
-                readBody(req, (body) => {
-                    let contact = JSON.parse(body);
-                    parsedPhonebook[id].firstname = contact.firstname;
-                    parsedPhonebook[id].phone = contact.phone;
-                    let stringifiedPhonebook = JSON.stringify(parsedPhonebook);
-                    fs.writeFile('phonebook.json', stringifiedPhonebook, (error) => {
-                        if (error) {
-                            console.log(error);
-                        }
-                    })
-                    console.log(parsedPhonebook[id]);
-                    res.end('Updated contact for ' + parsedPhonebook[id].firstname);
-                })
-            }
-        });
-    }
-    else if (req.url.startsWith('/contacts/') && req.method === 'DELETE') {
-        let id = req.url.slice(contactPrefix.length);
-        fs.readFile('phonebook.json', 'utf8', (error, contents) => {
-            if (error) {
-                console.log(error);
-            }
-            else {
-                let parsedPhonebook = JSON.parse(contents);
-                delete parsedPhonebook[id];
+            readBody(req, (body) => {
+                let contact = JSON.parse(body);
+                parsedPhonebook[id].firstname = contact.firstname;
+                parsedPhonebook[id].phone = contact.phone;
                 let stringifiedPhonebook = JSON.stringify(parsedPhonebook);
                 fs.writeFile('phonebook.json', stringifiedPhonebook, (error) => {
                     if (error) {
                         console.log(error);
                     }
-                })
-                res.end('Entry deleted');
+                    else {
+                        console.log(parsedPhonebook[id]);
+                        res.end('Updated contact entry for ' + parsedPhonebook[id].firstname);
+                    }
+                });
+            });
+        }
+    });
+};
+
+let deleteContact = (req, res, id) => {
+    fs.readFile('phonebook.json', 'utf8', (error, contents) => {
+        if (error) {
+            console.log(error)
+        }
+        let parsedPhonebook = JSON.parse(contents);
+        let entryName = parsedPhonebook[id].firstname;
+        delete parsedPhonebook[id];
+        let stringifiedPhonebook = JSON.stringify(parsedPhonebook);
+        fs.writeFile('phonebook.json', stringifiedPhonebook, (error) => {
+            if (error) {
+                console.log(error);
+            }
+            else {
+                res.end('Contact entry deleted for ' + entryName);
             }
         });
+    });
+};
+
+let server = http.createServer( (req, res) => {
+    const id = req.url.slice(contactPrefix.length);
+    if (req.url === '/contacts' && req.method === 'GET') {
+        getEntries(res);
+    }
+    else if (req.url.startsWith('/contacts/') && req.method === 'GET') {
+        getContact(res, id);
+    }
+    else if (req.url === '/contacts' && req.method === 'POST') {
+        postContact(req, res);
+    }
+    else if (req.url.startsWith('/contacts/') && req.method === 'PUT') {
+        putContact(req, res, id);
+    }
+    else if (req.url.startsWith('/contacts/') && req.method === 'DELETE') {
+        deleteContact(req, res, id);
     }
     else {
         res.end('404 File Not Found');
