@@ -12,7 +12,7 @@ var stringifyPhonebook = function(phonebook) {
 };
 
 var writePhonebookToFile = function(stringifiedPhonebook) {
-    fs.writeFile('phonebook.json', stringifiedPhonebook, function(error) {
+    fs.writeFile('phonebook3.json', stringifiedPhonebook, function(error) {
         if (error) {
             console.log(error);
         }
@@ -39,7 +39,7 @@ var mainMenu = function() {
     };
 
     var importPhonebook = function () {
-        fs.readFile('phonebook.json', 'utf8', function(error, contents) {
+        fs.readFile('phonebook3.json', 'utf8', function(error, contents) {
             if (error) {
                 console.log(error);
             }
@@ -55,9 +55,9 @@ var mainMenu = function() {
         console.log(menuItems[2] + '\n' + menuItems[3] + '\n' + menuItems[2]);
         rl.question('Name: ', function(name) {
             var entryCounter = 0;
-            phonebookEntries.forEach(function(entry) {
-                if (entry.firstname === name) {
-                    console.log('Found entry for ' + name + ': ' + entry.phone);
+            Object.keys(phonebookEntries).forEach((entry) => {
+                if (phonebookEntries[entry].firstname === name) {
+                    console.log('Found entry for ' + phonebookEntries[entry].firstname + ': ' + phonebookEntries[entry].phone);
                     entryCounter++;
                 }
             });
@@ -81,7 +81,7 @@ var mainMenu = function() {
                 phonebookEntry.firstname = name;
                 phonebookEntry.phone = phoneNumber;
                 phonebookEntry.id = id
-                phonebookEntries.push(phonebookEntry);
+                phonebookEntries[id] = phonebookEntry;
                 console.log('Entry stored for ' + name);
                 writePhonebookToFile(stringifyPhonebook(phonebookEntries));
                 console.log('Phonebook saved!');
@@ -93,16 +93,16 @@ var mainMenu = function() {
     var deleteAnEntry = function (displayMenu) {
         console.log(menuItems[2] + '\n' + menuItems[5] + '\n' + menuItems[2]);
         rl.question('Name: ', function(name) {
-            var phonebookEntriesCopy = [];
-            phonebookEntries.forEach(function(entry) {
-                if (entry.firstname !== name) {
-                    phonebookEntriesCopy.push(entry);
+            var phonebookEntriesCopy = {};
+            Object.keys(phonebookEntries).forEach((entry) => {
+                if (phonebookEntries[entry].firstname !== name) {
+                    phonebookEntriesCopy[entry] = phonebookEntries[entry];
                 }
-                else if (entry.firstname === name) {
-                    console.log('Deleted entry for ' + entry.firstname);
+                else if (phonebookEntries[entry].firstname === name) {
+                    console.log('Deleted entry for ' + phonebookEntries[entry].firstname);
                 }
             });
-            if (phonebookEntries.length === phonebookEntriesCopy.length) {
+            if (Object.keys(phonebookEntries).length === Object.keys(phonebookEntriesCopy).length) {
                 console.log('Entry not found, unable to delete.');
             }
             else {
@@ -116,14 +116,14 @@ var mainMenu = function() {
 
     var listAllEntries = function(displayMenu) {
         console.log(menuItems[2] + '\n' + menuItems[6] + '\n' + menuItems[2]);
-        fs.readFile('phonebook.json', 'utf8', function(error, contents) {
+        fs.readFile('phonebook3.json', 'utf8', function(error, contents) {
             if (error) {
                 console.log(error);
             }
             else {
                 var parsedPhonebook = JSON.parse(contents);
-                parsedPhonebook.forEach(function(entry) {
-                    console.log('\n' + 'Name: ' + entry.firstname + '\n' + 'Phone Number: ' + entry.phone + '\n');
+                Object.keys(parsedPhonebook).forEach((entry) => {
+                    console.log('\n' + 'Name: ' + parsedPhonebook[entry].firstname + '\n' + 'Phone Number: ' + parsedPhonebook[entry].phone + '\n');
                 });
                 displayMenu();
             }

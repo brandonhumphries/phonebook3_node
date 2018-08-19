@@ -20,7 +20,7 @@ let generateID = () => {
 
 let getEntries = (req, res, id) => {
     // GET /contacts
-    fs.readFile('phonebook.json', 'utf8', (error, contents) => {
+    fs.readFile('phonebook_server.json', 'utf8', (error, contents) => {
         let stringifiedEntries = JSON.stringify(contents);
         if (error) {
             console.log(error);
@@ -32,7 +32,7 @@ let getEntries = (req, res, id) => {
 };
 
 let getContact = (req, res, id) => {
-    fs.readFile('phonebook.json', 'utf8', (error, contents) => {
+    fs.readFile('phonebook_server.json', 'utf8', (error, contents) => {
         let parsedPhonebook = JSON.parse(contents);
         // if (parsedPhonebook[id] === undefined) {
         //     res.end('404 Not Found');
@@ -50,7 +50,7 @@ let getContact = (req, res, id) => {
 };
 
 let postContact = (req, res, id) => {
-    fs.readFile('phonebook.json', 'utf8', (error, contents) => {
+    fs.readFile('phonebook_server.json', 'utf8', (error, contents) => {
         if (error) {
             console.log(error);
         }
@@ -62,7 +62,7 @@ let postContact = (req, res, id) => {
                 contact.id = newID;
                 parsedPhonebook[newID] = contact;
                 let stringifiedPhonebook = JSON.stringify(parsedPhonebook);
-                fs.writeFile('phonebook.json', stringifiedPhonebook, (error) => {
+                fs.writeFile('phonebook_server.json', stringifiedPhonebook, (error) => {
                     if (error) {
                         console.log(error);
                     }
@@ -75,7 +75,7 @@ let postContact = (req, res, id) => {
 };
 
 let putContact = (req, res, id) => {
-    fs.readFile('phonebook.json', 'utf8', (error, contents) => {
+    fs.readFile('phonebook_server.json', 'utf8', (error, contents) => {
         if (error) {
             console.log(error);
         }
@@ -90,7 +90,7 @@ let putContact = (req, res, id) => {
                 parsedPhonebook[id].firstname = contact.firstname;
                 parsedPhonebook[id].phone = contact.phone;
                 let stringifiedPhonebook = JSON.stringify(parsedPhonebook);
-                fs.writeFile('phonebook.json', stringifiedPhonebook, (error) => {
+                fs.writeFile('phonebook_server.json', stringifiedPhonebook, (error) => {
                     if (error) {
                         console.log(error);
                     }
@@ -106,7 +106,7 @@ let putContact = (req, res, id) => {
 };
 
 let deleteContact = (req, res, id) => {
-    fs.readFile('phonebook.json', 'utf8', (error, contents) => {
+    fs.readFile('phonebook_server.json', 'utf8', (error, contents) => {
         if (error) {
             console.log(error)
         }
@@ -118,7 +118,7 @@ let deleteContact = (req, res, id) => {
         let entryName = parsedPhonebook[id].firstname;
         delete parsedPhonebook[id];
         let stringifiedPhonebook = JSON.stringify(parsedPhonebook);
-        fs.writeFile('phonebook.json', stringifiedPhonebook, (error) => {
+        fs.writeFile('phonebook_server.json', stringifiedPhonebook, (error) => {
             if (error) {
                 console.log(error);
             }
