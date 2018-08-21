@@ -18,7 +18,7 @@ let generateID = () => {
     return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
 };
 
-let getEntries = (req, res, id) => {
+let getEntries = (req, res, matches) => {
     // GET /contacts
     fs.readFile('phonebook_server.json', 'utf8', (error, contents) => {
         let stringifiedEntries = JSON.stringify(contents);
@@ -31,14 +31,14 @@ let getEntries = (req, res, id) => {
     });
 };
 
-let getContact = (req, res, id) => {
+let getContact = (req, res, matches) => {
     fs.readFile('phonebook_server.json', 'utf8', (error, contents) => {
         let parsedPhonebook = JSON.parse(contents);
         // if (parsedPhonebook[id] === undefined) {
         //     res.end('404 Not Found');
         // }
         // else{
-        let stringifiedEntry = JSON.stringify(parsedPhonebook[id]);
+        let stringifiedEntry = JSON.stringify(parsedPhonebook[matches]);
         if (error) {
             console.log(error);
         }
@@ -49,7 +49,7 @@ let getContact = (req, res, id) => {
     });
 };
 
-let postContact = (req, res, id) => {
+let postContact = (req, res, matches) => {
     fs.readFile('phonebook_server.json', 'utf8', (error, contents) => {
         if (error) {
             console.log(error);
@@ -74,7 +74,7 @@ let postContact = (req, res, id) => {
     });
 };
 
-let putContact = (req, res, id) => {
+let putContact = (req, res, matches) => {
     fs.readFile('phonebook_server.json', 'utf8', (error, contents) => {
         if (error) {
             console.log(error);
@@ -87,16 +87,18 @@ let putContact = (req, res, id) => {
             // else {
             readBody(req, (body) => {
                 let contact = JSON.parse(body);
-                parsedPhonebook[id].firstname = contact.firstname;
-                parsedPhonebook[id].phone = contact.phone;
+                parsedPhonebook[matches].name = contact.name;
+                parsedPhonebook[matches].email = contact.email;
+                parsedPhonebook[matches].phone = contact.phone;
+                parsedPhonebook[matches].address = contact.address;
                 let stringifiedPhonebook = JSON.stringify(parsedPhonebook);
                 fs.writeFile('phonebook_server.json', stringifiedPhonebook, (error) => {
                     if (error) {
                         console.log(error);
                     }
                     else {
-                        console.log(parsedPhonebook[id]);
-                        res.end('Updated contact entry for ' + parsedPhonebook[id].firstname);
+                        console.log(parsedPhonebook[matches]);
+                        res.end('Updated contact entry for ' + parsedPhonebook[matches].name);
                     }
                 });
             });
@@ -105,18 +107,18 @@ let putContact = (req, res, id) => {
     });
 };
 
-let deleteContact = (req, res, id) => {
+let deleteContact = (req, res, matches) => {
     fs.readFile('phonebook_server.json', 'utf8', (error, contents) => {
         if (error) {
             console.log(error)
         }
         let parsedPhonebook = JSON.parse(contents);
-        // if (parsedPhonebook[id] === undefined) {
+        // if (parsedPhonebook[matches] === undefined) {
         //     res.end('404 Not Found');
         // }
         // else {
-        let entryName = parsedPhonebook[id].firstname;
-        delete parsedPhonebook[id];
+        let entryName = parsedPhonebook[matches].name;
+        delete parsedPhonebook[matches];
         let stringifiedPhonebook = JSON.stringify(parsedPhonebook);
         fs.writeFile('phonebook_server.json', stringifiedPhonebook, (error) => {
             if (error) {
@@ -130,67 +132,80 @@ let deleteContact = (req, res, id) => {
     });
 };
 
-let notFound = (req, res, id) => {
+let notFound = (req, res, matches) => {
     res.end('404 Not Found');
 }
 
 let routes = [
     {
         method: 'GET',
-        url: '/contacts/',
+        // url: '/contacts/',
+        url: /^\/contacts\/([0-9]+$)/,
         run: getContact
     },
     {
         method: 'PUT',
-        url: '/contacts/',
+        // url: '/contacts/',
+        url: /^\/contacts\/([0-9]+$)/,
         run: putContact
     },
     {
         method: 'DELETE',
-        url: '/contacts/',
+        // url: '/contacts/',
+        url: /^\/contacts\/([0-9]+$)/,
         run: deleteContact
     },
     {
         method: 'POST',
-        url: '/contacts',
+        // url: '/contacts',
+        url: /^\/contacts$/,
         run: postContact
     },
     {
         method: 'GET',
-        url: '/contacts',
+        url: /^\/contacts$/,
         run: getEntries
     },
-    {
-        method: 'GET',
-        url: '',
-        run: notFound
-    },
-    {
-        method: 'POST',
-        url: '',
-        run: notFound
-    },
-    {
-        method: 'PUT',
-        url: '',
-        run: notFound
-    },
-    {
-        method: 'DELETE',
-        url: '',
-        run: notFound
-    }
+    // {
+    //     method: 'GET',
+    //     url: '',
+    //     run: notFound
+    // },
+    // {
+    //     method: 'POST',
+    //     url: '',
+    //     run: notFound
+    // },
+    // {
+    //     method: 'PUT',
+    //     url: '',
+    //     run: notFound
+    // },
+    // {
+    //     method: 'DELETE',
+    //     url: '',
+    //     run: notFound
+    // }
 ];
 
 
 let server = http.createServer( (req, res) => {
-    const id = req.url.slice(contactPrefix.length);
-    routes.find((route) => {
-        if (req.url.startsWith(route.url) && req.method === route.method) {
-            route.run(req, res, id);
-            return true;
-        }
-    });
+    // const matches = req.url.slice(contactPrefix.length);
+    let route = routes.find((route) => 
+        route.url.test(req.url) && req.method === route.method);
+    let matches = route.url.exec(req.url).slice(1);
+    route.run(req, res, matches);
+    
+    //     testURL = req.url;
+    //     console.log(regexContact.test(req.url));
+    //     console.log(testURL);
+    //     // let matches = regexContact.exec(testURL).slice(1);
+    //     console.log(matches);
+    //     if (req.url.startsWith(route.url) && req.method === route.method) {
+    //         route.run(req, res, matches);
+    //         return true;
+    //     }
+    // });
 });
 
 server.listen(3000);
