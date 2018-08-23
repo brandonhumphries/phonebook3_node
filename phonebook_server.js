@@ -96,88 +96,6 @@ let notFound = (req, res) => {
     res.end('404 Not Found');
 }
 
-// let routes = [
-//     {
-//         method: 'GET',
-//         url: /^\/contacts\/([0-9]+$)/,
-//         run: getContact
-//     },
-//     {
-//         method: 'PUT',
-//         url: /^\/contacts\/([0-9]+$)/,
-//         run: putContact
-//     },
-//     {
-//         method: 'DELETE',
-//         url: /^\/contacts\/([0-9]+$)/,
-//         run: deleteContact
-//     },
-//     {
-//         method: 'POST',
-//         url: /^\/contacts$/,
-//         run: postContact
-//     },
-//     {
-//         method: 'GET',
-//         url: /^\/contacts$/,
-//         run: getEntries
-//     },
-//     {
-//         method: 'GET',
-//         url: /^\/$/,
-//         run: renderHomepage
-//     },
-//     {
-//         method: 'GET',
-//         url: /^\/index.js$/,
-//         run: sendJavascript
-//     },
-//     {
-//         method: 'GET',
-//         url: /^.*$/,
-//         run: notFound
-//     }
-//     // {
-//     //     method: 'GET',
-//     //     url: '',
-//     //     run: notFound
-//     // },
-//     // {
-//     //     method: 'POST',
-//     //     url: '',
-//     //     run: notFound
-//     // },
-//     // {
-//     //     method: 'PUT',
-//     //     url: '',
-//     //     run: notFound
-//     // },
-//     // {
-//     //     method: 'DELETE',
-//     //     url: '',
-//     //     run: notFound
-//     // }
-// ];
-
-
-// let server = http.createServer( (req, res) => {
-//     let route = routes.find((route) => 
-//         route.url.test(req.url) && req.method === route.method);
-//     let matches = route.url.exec(req.url).slice(1);
-//     route.run(req, res, matches);
-    
-//     //     testURL = req.url;
-//     //     console.log(regexContact.test(req.url));
-//     //     console.log(testURL);
-//     //     // let matches = regexContact.exec(testURL).slice(1);
-//     //     console.log(matches);
-//     //     if (req.url.startsWith(route.url) && req.method === route.method) {
-//     //         route.run(req, res, matches);
-//     //         return true;
-//     //     }
-//     // });
-// });
-
 server.get('/contacts', getEntries);
 server.get('/contacts/:id', getContact);
 server.delete('/contacts/:id', deleteContact);
@@ -186,14 +104,3 @@ server.post('/contacts', postContact);
 server.get('/', renderHomepage);
 
 server.listen(3000);
-
-
-// const express = require('express');
-
-// let server = express();
-
-// server.get('/contacts', getContacts);
-// server.get('/contacts/:id', getContacts);
-// server.delete('/contacts/:id', getContacts);
-
-// let id = req.params.id
