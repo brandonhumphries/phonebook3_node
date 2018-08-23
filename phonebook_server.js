@@ -30,14 +30,9 @@ let getEntries = (req, res, matches) => {
 
 let getContact = (req, res, matches) => {
     let contactID = matches[0];
-    
-    console.log(matches);
-    console.log(contactID);
-    db.query(`SELECT * FROM public.contacts WHERE id = ` + matches[0])
+    db.query(`SELECT * FROM public.contacts WHERE id = '` + contactID + `'`)
         .then((contents) => {
-            console.log(contents);
-            // let parsedPhonebook = JSON.parse(contents);
-            let stringifiedEntry = JSON.stringify(contents[matches]);
+            let stringifiedEntry = JSON.stringify(contents);
                 res.end(stringifiedEntry);
         });
 };
@@ -53,61 +48,22 @@ let postContact = (req, res, matches) => {
 };
 
 let putContact = (req, res, matches) => {
-    fs.readFile('phonebook_server.json', 'utf8', (error, contents) => {
-        if (error) {
-            console.log(error);
-        }
-        else {
-            let parsedPhonebook = JSON.parse(contents);
-            // if (parsedPhonebook[id] === undefined) {
-            //     res.end('404 Not Found');
-            // }
-            // else {
-            readBody(req, (body) => {
-                let contact = JSON.parse(body);
-                parsedPhonebook[matches].name = contact.name;
-                parsedPhonebook[matches].email = contact.email;
-                parsedPhonebook[matches].phone = contact.phone;
-                parsedPhonebook[matches].address = contact.address;
-                let stringifiedPhonebook = JSON.stringify(parsedPhonebook);
-                fs.writeFile('phonebook_server.json', stringifiedPhonebook, (error) => {
-                    if (error) {
-                        console.log(error);
-                    }
-                    else {
-                        console.log(parsedPhonebook[matches]);
-                        res.end('Updated contact entry for ' + parsedPhonebook[matches].name);
-                    }
-                });
+    readBody(req, (body) => {
+        let contact = JSON.parse(body);
+        let contactID = matches[0];
+        db.query(`UPDATE contacts SET (name, email, phone, address) = ('` + contact.name + `', '` + contact.email + `', '` + contact.phone + `', '` + contact.address + `') WHERE id = '` + contactID +`'`)
+            .then((contents) => {
+                res.end('Updated contact entry for ' + contact.name);
             });
-            // }
-        }
     });
 };
 
 let deleteContact = (req, res, matches) => {
-    fs.readFile('phonebook_server.json', 'utf8', (error, contents) => {
-        if (error) {
-            console.log(error)
-        }
-        let parsedPhonebook = JSON.parse(contents);
-        // if (parsedPhonebook[matches] === undefined) {
-        //     res.end('404 Not Found');
-        // }
-        // else {
-        let entryName = parsedPhonebook[matches].name;
-        delete parsedPhonebook[matches];
-        let stringifiedPhonebook = JSON.stringify(parsedPhonebook);
-        fs.writeFile('phonebook_server.json', stringifiedPhonebook, (error) => {
-            if (error) {
-                console.log(error);
-            }
-            else {
-                res.end('Contact entry deleted for ' + entryName);
-            }
+    let contactID = matches[0];
+    db.query(`DELETE FROM contacts WHERE id = '` + contactID + `';`)
+        .then((contents) => {
+            res.end('Contact entry deleted');
         });
-        // }
-    });
 };
 
 let renderHomepage = (req, res, matches) => {
@@ -220,3 +176,14 @@ let server = http.createServer( (req, res) => {
 });
 
 server.listen(3000);
+
+
+// const express = require('express');
+
+// let server = express();
+
+// server.get('/contacts', getContacts);
+// server.get('/contacts/:id', getContacts);
+// server.delete('/contacts/:id', getContacts);
+
+// let id = req.params.id
