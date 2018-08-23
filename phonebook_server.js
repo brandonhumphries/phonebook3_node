@@ -1,9 +1,12 @@
 const http = require('http');
 const fs = require('fs');
 const pg =  require('pg-promise')();
+const express = require('express');
 
 const dbConfig = 'postgress://brandonhumphries@localhost:5432/phonebook';
 const db = pg(dbConfig);
+
+let server = express();
 
 let readBody = (req, callback) => {
     let body = '';
@@ -19,7 +22,7 @@ let generateID = () => {
     return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
 };
 
-let getEntries = (req, res, matches) => {
+let getEntries = (req, res) => {
     // GET /contacts
     db.query(`SELECT * FROM public.contacts`)
         .then((contents) => {
@@ -28,16 +31,16 @@ let getEntries = (req, res, matches) => {
         });
 };
 
-let getContact = (req, res, matches) => {
-    let contactID = matches[0];
-    db.query(`SELECT * FROM public.contacts WHERE id = '` + contactID + `'`)
+let getContact = (req, res) => {
+    let id = req.params.id;
+    db.query(`SELECT * FROM public.contacts WHERE id = '` + id + `'`)
         .then((contents) => {
             let stringifiedEntry = JSON.stringify(contents);
                 res.end(stringifiedEntry);
         });
 };
 
-let postContact = (req, res, matches) => {
+let postContact = (req, res) => {
     readBody(req, (body) => {
         let contact = JSON.parse(body);
         newID = generateID();
@@ -47,26 +50,26 @@ let postContact = (req, res, matches) => {
     });
 };
 
-let putContact = (req, res, matches) => {
+let putContact = (req, res) => {
+    let id = req.params.id;
     readBody(req, (body) => {
         let contact = JSON.parse(body);
-        let contactID = matches[0];
-        db.query(`UPDATE contacts SET (name, email, phone, address) = ('` + contact.name + `', '` + contact.email + `', '` + contact.phone + `', '` + contact.address + `') WHERE id = '` + contactID +`'`)
+        db.query(`UPDATE contacts SET (name, email, phone, address) = ('` + contact.name + `', '` + contact.email + `', '` + contact.phone + `', '` + contact.address + `') WHERE id = '` + id +`'`)
             .then((contents) => {
                 res.end('Updated contact entry for ' + contact.name);
             });
     });
 };
 
-let deleteContact = (req, res, matches) => {
-    let contactID = matches[0];
-    db.query(`DELETE FROM contacts WHERE id = '` + contactID + `';`)
+let deleteContact = (req, res) => {
+    let id = req.params.id;
+    db.query(`DELETE FROM contacts WHERE id = '` + id + `';`)
         .then((contents) => {
             res.end('Contact entry deleted');
         });
 };
 
-let renderHomepage = (req, res, matches) => {
+let renderHomepage = (req, res) => {
     fs.readFile('phonebook_frontend/index.html', 'utf8', (error, contents) => {
         if (error) {
             console.log(error);
@@ -78,7 +81,7 @@ let renderHomepage = (req, res, matches) => {
     });
 };
 
-let sendJavascript = (req, res, matches) => {
+let sendJavascript = (req, res) => {
     fs.readFile('phonebook_frontend/index.js', 'utf8', (error, contents) => {
         if (error) {
             console.log(error);
@@ -89,91 +92,98 @@ let sendJavascript = (req, res, matches) => {
     });
 };
 
-let notFound = (req, res, matches) => {
+let notFound = (req, res) => {
     res.end('404 Not Found');
 }
 
-let routes = [
-    {
-        method: 'GET',
-        url: /^\/contacts\/([0-9]+$)/,
-        run: getContact
-    },
-    {
-        method: 'PUT',
-        url: /^\/contacts\/([0-9]+$)/,
-        run: putContact
-    },
-    {
-        method: 'DELETE',
-        url: /^\/contacts\/([0-9]+$)/,
-        run: deleteContact
-    },
-    {
-        method: 'POST',
-        url: /^\/contacts$/,
-        run: postContact
-    },
-    {
-        method: 'GET',
-        url: /^\/contacts$/,
-        run: getEntries
-    },
-    {
-        method: 'GET',
-        url: /^\/$/,
-        run: renderHomepage
-    },
-    {
-        method: 'GET',
-        url: /^\/index.js$/,
-        run: sendJavascript
-    },
-    {
-        method: 'GET',
-        url: /^.*$/,
-        run: notFound
-    }
-    // {
-    //     method: 'GET',
-    //     url: '',
-    //     run: notFound
-    // },
-    // {
-    //     method: 'POST',
-    //     url: '',
-    //     run: notFound
-    // },
-    // {
-    //     method: 'PUT',
-    //     url: '',
-    //     run: notFound
-    // },
-    // {
-    //     method: 'DELETE',
-    //     url: '',
-    //     run: notFound
-    // }
-];
+// let routes = [
+//     {
+//         method: 'GET',
+//         url: /^\/contacts\/([0-9]+$)/,
+//         run: getContact
+//     },
+//     {
+//         method: 'PUT',
+//         url: /^\/contacts\/([0-9]+$)/,
+//         run: putContact
+//     },
+//     {
+//         method: 'DELETE',
+//         url: /^\/contacts\/([0-9]+$)/,
+//         run: deleteContact
+//     },
+//     {
+//         method: 'POST',
+//         url: /^\/contacts$/,
+//         run: postContact
+//     },
+//     {
+//         method: 'GET',
+//         url: /^\/contacts$/,
+//         run: getEntries
+//     },
+//     {
+//         method: 'GET',
+//         url: /^\/$/,
+//         run: renderHomepage
+//     },
+//     {
+//         method: 'GET',
+//         url: /^\/index.js$/,
+//         run: sendJavascript
+//     },
+//     {
+//         method: 'GET',
+//         url: /^.*$/,
+//         run: notFound
+//     }
+//     // {
+//     //     method: 'GET',
+//     //     url: '',
+//     //     run: notFound
+//     // },
+//     // {
+//     //     method: 'POST',
+//     //     url: '',
+//     //     run: notFound
+//     // },
+//     // {
+//     //     method: 'PUT',
+//     //     url: '',
+//     //     run: notFound
+//     // },
+//     // {
+//     //     method: 'DELETE',
+//     //     url: '',
+//     //     run: notFound
+//     // }
+// ];
 
 
-let server = http.createServer( (req, res) => {
-    let route = routes.find((route) => 
-        route.url.test(req.url) && req.method === route.method);
-    let matches = route.url.exec(req.url).slice(1);
-    route.run(req, res, matches);
+// let server = http.createServer( (req, res) => {
+//     let route = routes.find((route) => 
+//         route.url.test(req.url) && req.method === route.method);
+//     let matches = route.url.exec(req.url).slice(1);
+//     route.run(req, res, matches);
     
-    //     testURL = req.url;
-    //     console.log(regexContact.test(req.url));
-    //     console.log(testURL);
-    //     // let matches = regexContact.exec(testURL).slice(1);
-    //     console.log(matches);
-    //     if (req.url.startsWith(route.url) && req.method === route.method) {
-    //         route.run(req, res, matches);
-    //         return true;
-    //     }
-    // });
-});
+//     //     testURL = req.url;
+//     //     console.log(regexContact.test(req.url));
+//     //     console.log(testURL);
+//     //     // let matches = regexContact.exec(testURL).slice(1);
+//     //     console.log(matches);
+//     //     if (req.url.startsWith(route.url) && req.method === route.method) {
+//     //         route.run(req, res, matches);
+//     //         return true;
+//     //     }
+//     // });
+// });
+
+server.get('/contacts', getEntries);
+server.get('/contacts/:id', getContact);
+server.delete('/contacts/:id', deleteContact);
+server.put('/contacts/:id', putContact);
+server.post('/contacts', postContact);
+server.get('/', renderHomepage);
 
 server.listen(3000);
 
