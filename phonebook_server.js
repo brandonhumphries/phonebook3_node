@@ -43,7 +43,7 @@ let getContact = (req, res) => {
 let postContact = (req, res) => {
     readBody(req, (body) => {
         let contact = JSON.parse(body);
-        newID = generateID();
+        let newID = generateID();
         contact.id = newID;
         db.query(`INSERT INTO 
                     contacts (name, email, phone, address, id) 
