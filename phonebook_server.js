@@ -45,7 +45,9 @@ let postContact = (req, res) => {
         let contact = JSON.parse(body);
         newID = generateID();
         contact.id = newID;
-        db.query(`INSERT INTO contacts (name, email, phone, address, id) VALUES ('` + contact.name + `', '` + contact.email + `', '` + contact.phone + `', '` + contact.address + `', '` + contact.id + `');`)
+        db.query(`INSERT INTO 
+                    contacts (name, email, phone, address, id) 
+                    VALUES ('` + contact.name + `', '` + contact.email + `', '` + contact.phone + `', '` + contact.address + `', '` + contact.id + `');`)
         res.end('Created contact! Entry id: ' + newID);
     });
 };
@@ -54,7 +56,8 @@ let putContact = (req, res) => {
     let id = req.params.id;
     readBody(req, (body) => {
         let contact = JSON.parse(body);
-        db.query(`UPDATE contacts SET (name, email, phone, address) = ('` + contact.name + `', '` + contact.email + `', '` + contact.phone + `', '` + contact.address + `') WHERE id = '` + id +`'`)
+        db.query(`UPDATE contacts 
+                    SET (name, email, phone, address) = ('` + contact.name + `', '` + contact.email + `', '` + contact.phone + `', '` + contact.address + `') WHERE id = '` + id +`'`)
             .then((contents) => {
                 res.end('Updated contact entry for ' + contact.name);
             });
